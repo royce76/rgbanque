@@ -2,7 +2,21 @@
   include "template/nav.php";
   include "template/header.php";
 ?>
+<?php
+  $info_user = $_SESSION["user_email"];
+  echo $info_user["id"];
+  $query = $db->prepare(
+    "SELECT u.id, a.amount, a.opening_date, a.account_type FROM User AS u
+      INNER JOIN Account AS a
+      WHERE u.id = a.user_id AND u.id = :user_id"
+  );
+  $result = $query->execute([
+    "user_id" => $info_user["id"]
+  ]);
 
+  $account_user = $query->fetch(PDO::FETCH_ASSOC);
+  print_r($account_user);
+ ?>
   <section class="container">
     <h2 class="text-center my-4">Tous vos comptes</h2>
     <div class="row">

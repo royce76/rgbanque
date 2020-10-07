@@ -5,6 +5,13 @@
     $data = htmlspecialchars($data, ENT_QUOTES);//both quotes
     return $data;
   }
+  //Connect to database
+  try {
+    $db = new PDO('mysql:host=localhost;dbname=banque_php', 'BanquePHP', 'banque76');
+  } catch (\Exception $e) {
+    print "Erreur !: " . $e->getMessage() . "<br/>";
+    die();
+  }
 ?>
 <?php
   session_start();
