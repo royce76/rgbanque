@@ -23,13 +23,13 @@
         <div class="card-header">
           <?php echo $accounts["account_type"] ?>
         </div>
+        <ul class="list-group list-group-flush">
         <?php foreach ($accounts as $keys => $account): ?>
           <?php if ($keys !== "account_type" && $keys !== "id"): ?>
-            <ul class="list-group list-group-flush">
-              <?php echo $keys . ' : ' . $account ?>
-            </ul>
+              <li class="list-group-item"><?php echo $keys . ' : ' . $account ?></li>
           <?php endif; ?>
         <?php endforeach; ?>
+        </ul>
         <div class="card-body d-flex justify-content-center align-items-center">
           <a href="showaccount.php<?php echo '?id=' . $accounts["id"]?>" class="btn btn-primary">Voir mon compte
           </a>
