@@ -6,6 +6,16 @@
     return $data;
   }
 ?>
+<?php
+  session_start();
+  if (!isset($_SESSION["user_email"]) && empty($_SESSION["user_email"])) {
+    header("Location: connexion.php");
+  }
+  if (isset($_POST["deconnexion"])) {
+    session_destroy();
+    header("Location: connexion.php");
+  }
+ ?>
 
 <!doctype html>
 <html class="no-js" lang="fr">
@@ -65,5 +75,8 @@
             </div>
           </li>
         </ul>
+        <form action="" method="POST" class="form-inline my-2 my-lg-0">
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit" name="deconnexion">Déconnexion</button>
+        </form>
       </div>
     </nav>
