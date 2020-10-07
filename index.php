@@ -2,7 +2,12 @@
   include "template/nav.php";
   include "template/header.php";
 ?>
-
+<?php
+  session_start();
+  if (!isset($_SESSION["user_email"]) && empty($_SESSION["user_email"])) {
+    header("Location: connexion.php");
+  }
+ ?>
   <section class="container">
     <h2 class="text-center my-4">Tous vos comptes</h2>
     <div class="row">
