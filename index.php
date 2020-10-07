@@ -5,7 +5,7 @@
 <?php
   $info_user = $_SESSION["user_email"];
   $query = $db->prepare(
-    "SELECT a.amount, a.opening_date, a.account_type FROM User AS u
+    "SELECT a.id, a.amount, a.opening_date, a.account_type FROM User AS u
       INNER JOIN Account AS a
       WHERE u.id = a.user_id AND u.id = :user_id"
   );
@@ -24,14 +24,14 @@
           <?php echo $accounts["account_type"] ?>
         </div>
         <?php foreach ($accounts as $keys => $account): ?>
-          <?php if ($keys !== "account_type"): ?>
+          <?php if ($keys !== "account_type" && $keys !== "id"): ?>
             <ul class="list-group list-group-flush">
               <?php echo $keys . ' : ' . $account ?>
             </ul>
           <?php endif; ?>
         <?php endforeach; ?>
         <div class="card-body d-flex justify-content-center align-items-center">
-          <a href="showaccount.php" class="btn btn-primary">Voir mon compte
+          <a href="showaccount.php<?php echo '?id=' . $accounts["id"]?>" class="btn btn-primary">Voir mon compte
           </a>
         </div>
       </div>
