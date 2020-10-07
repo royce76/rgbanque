@@ -1,8 +1,4 @@
 <?php
-  include "data/password.php";
-  $connexion = get_password();
-  $connexion_name = ["email","password"];
-  $ID = [];
   function test_input($data) {
     $data = trim($data); // remove space of both side
     $data = stripslashes($data);// remove backslashes
@@ -11,31 +7,11 @@
   }
 ?>
 
-<?php
-  $error = "";
-  if ($_SERVER["REQUEST_METHOD"] == "POST"):
-?>
-  <?php
-    foreach ($connexion_name as $names):
-  ?>
-    <?php
-      if (isset($_POST[$names]) && !empty($_POST[$names])):
-      $verify_name = test_input($_POST[$names]);
-      array_push($ID, $verify_name);
-    ?>
-    <?php
-      else:
-      $error = "OUPS";
-    ?>
-    <?php endif; ?>
-  <?php endforeach; ?>
-<?php endif; ?>
-
 <!doctype html>
 <html class="no-js" lang="fr">
   <head>
     <meta charset="utf-8">
-    <title>Banque Normandie</title>
+    <title>rgbanque</title>
     <meta name="description" content="Application bancaire avec ouverture de compte.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -84,16 +60,10 @@
               Mouvement
             </a>
             <div class="dropdown-menu" aria-labelledby="mouvementDropDown">
-              <a class="dropdown-item" href="deposit.php">Depôt</a>
-              <a class="dropdown-item" href="withdraw.php">Retraît</a>
+              <a class="dropdown-item" href="mouvement.php">Retraît/Depôt</a>
               <a class="dropdown-item" href="transfer.php">Virement</a>
             </div>
           </li>
         </ul>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="email" id="email" aria-describedby="emailHelp" name="email" placeholder="Votre E-mail..." value="<?php echo "$error"; ?>">
-          <input class="form-control mr-sm-2" type="password" id="password" name="password" placeholder="Votre mot de passe..." value="<?php echo "$error"; ?>">
-          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Connexion</button>
-        </form>
       </div>
     </nav>
