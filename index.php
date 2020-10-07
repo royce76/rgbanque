@@ -4,6 +4,8 @@
 ?>
 <?php
   $info_user = $_SESSION["user_email"];
+  //Our SESSION["user_email"] give us the id from user connected
+  //and then we can get accounts from user
   $query = $db->prepare(
     "SELECT a.id, a.amount, a.opening_date, a.account_type FROM User AS u
       INNER JOIN Account AS a
@@ -31,8 +33,7 @@
         <?php endforeach; ?>
         </ul>
         <div class="card-body d-flex justify-content-center align-items-center">
-          <a href="showaccount.php<?php echo '?id=' . $accounts["id"]?>" class="btn btn-primary">Voir mon compte
-          </a>
+          <a href="showaccount.php<?php echo '?id=' . $accounts["id"]?>" class="btn btn-primary">Voir mon compte</a>
         </div>
       </div>
 <?php endforeach; ?>
