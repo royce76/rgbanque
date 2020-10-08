@@ -31,6 +31,14 @@ include "template/header.php";
 
   if (isset($_POST["supprimer"])) {
     echo search_account_id();
+    $con = $db->prepare(
+      "DELETE FROM Operation
+      WHERE account_id = :a_id"
+    );
+    $resultat = $con->execute([
+      "a_id" => search_account_id()
+    ]);
+    
     $query = $db->prepare(
       "DELETE FROM Account
       WHERE id = :a_id"
