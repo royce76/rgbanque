@@ -7,15 +7,20 @@
   //Our SESSION["user_email"] give us the id from user connected
   //and then we can get accounts from user
   $query = $db->prepare(
-    "SELECT a.id, a.amount, a.opening_date, a.account_type FROM User AS u
-      INNER JOIN Account AS a
-      WHERE u.id = a.user_id AND u.id = :user_id"
+    "SELECT a.id, a.amount AS a_amount, a.opening_date, a.account_type, o.operation_type, o.amount AS o_amount, o.registered, o.label
+    FROM User AS u
+    INNER JOIN Account AS a
+    ON u.id = a.user_id AND u.id = :user_id
+    LEFT JOIN Operation AS o
+    ON a.id = o.account_id
+    ORDER BY o.registered DESC"
   );
   $result = $query->execute([
     "user_id" => $info_user["id"]
   ]);
 
   $account_user = $query->fetchAll(PDO::FETCH_ASSOC);
+  print_r($account_user);
  ?>
 <h2 class="text-center my-4">Tous vos comptes</h2>
 <div class="container">
