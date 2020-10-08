@@ -18,33 +18,67 @@ include "template/header.php";
   $account_type = $con->fetchAll(PDO::FETCH_ASSOC);
 
   //this three functions look for id,amount,account_type from array accounts
-  function search_account_id() {
+  function emetteur_account_id() {
     global $account_type;
     foreach ($account_type as $key => $accounts) {
       foreach ($accounts as $key => $account) {
-        if ($account == test_input($_POST["compte"])) {
+        if ($account == test_input($_POST["compte_emetteur"])) {
           return $accounts["id"];
         }
       }
     }
   }
 
-  function search_account_amount() {
+  function emetteur_account_amount() {
     global $account_type;
     foreach ($account_type as $key => $accounts) {
       foreach ($accounts as $key => $account) {
-        if ($account == test_input($_POST["compte"])) {
+        if ($account == test_input($_POST["compte_emetteur"])) {
           return $accounts["amount"];
         }
       }
     }
   }
 
-  function search_account_type() {
+  function emetteur_account_type() {
     global $account_type;
     foreach ($account_type as $key => $accounts) {
       foreach ($accounts as $key => $account) {
-        if ($account == test_input($_POST["compte"])) {
+        if ($account == test_input($_POST["compte_emetteur"])) {
+          return $account;
+        }
+      }
+    }
+  }
+
+  //this three functions look for id,amount,account_type from array accounts
+  function beneficiaire_account_id() {
+    global $account_type;
+    foreach ($account_type as $key => $accounts) {
+      foreach ($accounts as $key => $account) {
+        if ($account == test_input($_POST["compte_beneficiaire"])) {
+          return $accounts["id"];
+        }
+      }
+    }
+  }
+
+  function beneficiaire_account_amount() {
+    global $account_type;
+    foreach ($account_type as $key => $accounts) {
+      foreach ($accounts as $key => $account) {
+        if ($account == test_input($_POST["compte_beneficiaire"])) {
+          return $accounts["amount"];
+        }
+      }
+    }
+  }
+
+  function beneficiaire_account_type() {
+    global $account_type;
+    foreach ($account_type as $key => $accounts) {
+      foreach ($accounts as $key => $account) {
+        if ($account == test_input($_POST["compte_beneficiaire"])) {
           return $account;
         }
       }
@@ -52,7 +86,7 @@ include "template/header.php";
   }
 
   //then 2 choices, one with debit, one with credit, updating on the card account
-  if (isset($_POST["valider"]) && $_POST["mouvement"] === "credit") {
+  if (isset($_POST["valider"]) && $_POST["compte_beneficiaire"] === beneficiaire_account_type()) {
     $query = $db->prepare(
       "UPDATE Account
       SET amount = :new_amount + :old_amount
@@ -60,24 +94,23 @@ include "template/header.php";
     );
     $result = $query->execute([
       "new_amount" => test_input($_POST["amount"]),
-      "old_amount" => search_account_amount(),
-      "a_id" => search_account_id()
+      "old_amount" => beneficiaire_account_amount(),
+      "a_id" => beneficiaire_account_id()
     ]);
 
     //request with the right account_id
     $query = $db->prepare(
       "INSERT INTO Operation (operation_type, amount, registered, label, account_id)
-      VALUES (:operation_type, :amount, NOW(), :label, :account_id)"
+      VALUES ('virement reçu', :amount, NOW(), :label, :account_id)"
     );
     $result = $query->execute([
-      "operation_type" => test_input($_POST["mouvement"]),
       "amount" => test_input($_POST["amount"]),
       "label" => test_input($_POST["label"]),
-      "account_id" => search_account_id()
+      "account_id" => beneficiaire_account_id()
     ]);
   }
 
-  elseif (isset($_POST["valider"]) && $_POST["mouvement"] === "debit") {
+    if (isset($_POST["valider"]) && $_POST["compte_emetteur"] === emetteur_account_type()) {
 
     $query = $db->prepare(
       "UPDATE Account
@@ -86,20 +119,19 @@ include "template/header.php";
     );
     $result = $query->execute([
       "new_amount" => test_input($_POST["amount"]),
-      "old_amount" => search_account_amount(),
-      "a_id" => search_account_id()
+      "old_amount" => emetteur_account_amount(),
+      "a_id" => emetteur_account_id()
     ]);
 
     //request with the right account_id
     $query = $db->prepare(
       "INSERT INTO Operation (operation_type, amount, registered, label, account_id)
-      VALUES (:operation_type, :amount, NOW(), :label, :account_id)"
+      VALUES ('virement émis', :amount, NOW(), :label, :account_id)"
     );
     $result = $query->execute([
-      "operation_type" => test_input($_POST["mouvement"]),
       "amount" => test_input($_POST["amount"]),
       "label" => test_input($_POST["label"]),
-      "account_id" => search_account_id()
+      "account_id" => emetteur_account_id()
     ]);
   }
  ?>
@@ -131,14 +163,6 @@ include "template/header.php";
                <?php endif; ?>
              <?php endforeach; ?>
            <?php endforeach; ?>
-         </select>
-       </div>
-       <div class="form-group">
-         <label for="mouvement">Retrait/Dépôt :</label>
-         <select class="form-control" id="mouvement" name="mouvement">
-           <option value="">--Retrait/Dépôt--</option>
-           <option value="debit">Débit</option>
-           <option value="credit">Crédit</option>
          </select>
        </div>
        <div class="form-group">
