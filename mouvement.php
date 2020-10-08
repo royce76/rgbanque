@@ -16,6 +16,7 @@ include "template/header.php";
     "id_user" => $info_user["id"]
   ]);
   $account_type = $con->fetchAll(PDO::FETCH_ASSOC);
+  print_r($account_type);
 
   //this three functions look for id,amount,account_type from array accounts
   function search_account_id() {
