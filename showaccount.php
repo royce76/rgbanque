@@ -28,25 +28,25 @@
     $results = $con->execute([
       "id_account" => $account_id
     ]);
-    $account_user = $con->fetchAll(PDO::FETCH_ASSOC);
+    //we only fetch cause there is only one account to show
+    $account_user = $con->fetch(PDO::FETCH_ASSOC);
   endif;
 ?>
 <div class="container">
   <div class="row">
-    <?php foreach ($account_user as $key => $accounts): ?>
-      <div class="card col-10 col-md-5 mx-auto my-4" style="width: 18rem;">
-        <div class="card-header">
-          <?php echo $accounts["account_type"] ?>
-        </div>
-        <ul class="list-group list-group-flush">
-          <?php foreach ($accounts as $key => $account): ?>
-            <?php if ($key !== "account_type"): ?>
-              <li class="list-group-item"><?php echo $key . ' : ' . $account; ?></li>
-            <?php endif; ?>
-          <?php endforeach; ?>
-        </ul>
+    <div class="card col-10 col-md-5 mx-auto my-4" style="width: 18rem;">
+      <div class="card-header">
+        <?php echo $account_user["account_type"] ?>
       </div>
-    <?php endforeach; ?>
+      <ul class="list-group list-group-flush">
+        <?php foreach ($account_user as $key => $account): ?>
+          <?php if ($key !== "account_type"): ?>
+            <li class="list-group-item"><?php echo $key . ' : ' . $account; ?></li>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </ul>
+      <a href="index.php" class="btn btn-primary">Acceuil</a>
+    </div>
     <?php foreach ($operation_user as $key => $operations): ?>
       <div class="card col-10 col-md-5 mx-auto my-4" style="width: 18rem;">
         <div class="card-header">
