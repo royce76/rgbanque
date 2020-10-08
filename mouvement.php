@@ -6,6 +6,7 @@ include "template/header.php";
 <?php
   $info_user = $_SESSION["user_email"];
 
+  //create array accounts from user connected
   $con = $db->prepare(
     "SELECT a.id, a.amount, a.account_type
     FROM Account as a
@@ -15,8 +16,8 @@ include "template/header.php";
     "id_user" => $info_user["id"]
   ]);
   $account_type = $con->fetchAll(PDO::FETCH_ASSOC);
-  print_r($account_type);
 
+  //this three functions look for id,amount,account_type from array accounts
   function search_account_id() {
     global $account_type;
     foreach ($account_type as $key => $accounts) {
@@ -50,7 +51,8 @@ include "template/header.php";
     }
   }
 
-  if (isset($_POST["valider"])) {
+  //then 2 choices, one with debit, one with credit, updating on the card account
+  if (isset($_POST["valider"]) && $_POST["mouvement"] === "credit") {
     $query = $db->prepare(
       "UPDATE Account
       SET amount = :new_amount + :old_amount
@@ -61,47 +63,83 @@ include "template/header.php";
       "old_amount" => search_account_amount(),
       "a_id" => search_account_id()
     ]);
+
+    //request with the right account_id
+    $query = $db->prepare(
+      "INSERT INTO Operation (operation_type, amount, registered, label, account_id)
+      VALUES (:operation_type, :amount, NOW(), :label, :account_id)"
+    );
+    $result = $query->execute([
+      "operation_type" => test_input($_POST["mouvement"]),
+      "amount" => test_input($_POST["amount"]),
+      "label" => test_input($_POST["label"]),
+      "account_id" => search_account_id()
+    ]);
+  }
+
+  elseif (isset($_POST["valider"]) && $_POST["mouvement"] === "debit") {
+
+    $query = $db->prepare(
+      "UPDATE Account
+      SET amount = :old_amount - :new_amount
+      WHERE id = :a_id"
+    );
+    $result = $query->execute([
+      "new_amount" => test_input($_POST["amount"]),
+      "old_amount" => search_account_amount(),
+      "a_id" => search_account_id()
+    ]);
+
+    //request with the right account_id
+    $query = $db->prepare(
+      "INSERT INTO Operation (operation_type, amount, registered, label, account_id)
+      VALUES (:operation_type, :amount, NOW(), :label, :account_id)"
+    );
+    $result = $query->execute([
+      "operation_type" => test_input($_POST["mouvement"]),
+      "amount" => test_input($_POST["amount"]),
+      "label" => test_input($_POST["label"]),
+      "account_id" => search_account_id()
+    ]);
   }
  ?>
 
-<div class="container">
-  <div class="row">
-    <form action="" method="POST" class="col-10 mx-auto">
-      <div class="form-group">
-        <label for="compte">Votre compte :</label>
-        <select class="form-control" id="compte" name="compte">
-          <option value="">--Choisissez votre de compte--</option>
-          <?php foreach ($account_type as $key => $accounts): ?>
-            <?php foreach ($accounts as $key => $account): ?>
-              <?php if ($key === "account_type" ): ?>
-                <option value="<?php echo $account; ?>"> <?php echo $account; ?></option>
-              <?php endif; ?>
-            <?php endforeach; ?>
-          <?php endforeach; ?>
-
-          <!-- <option value="Livret A">Livret A</option>
-          <option value="PEL">PEL</option>
-          <option value="LivretJeune">Livret Jeune</option>
-          <option value="Perp">PERP (retraite)</option>
-          <option value="Perp">LEP (populaire)</option> -->
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="mouvement">Retrait/Dépôt :</label>
-        <select class="form-control" id="mouvement" name="mouvement">
-          <option value="">--Retrait/Dépôt--</option>
-          <option value="debit">Débit</option>
-          <option value="credit">Crédit</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="amount">Montant (Minimum 20 euro) :</label>
-        <input type="number" class="form-control" id="amount" name="amount" value="20" min="20" required>
-      </div>
-      <button type="submit" class="btn btn-primary mb-2" name="valider">Valider</button>
-    </form>
-  </div>
-</div>
+ <div class="container">
+   <div class="row">
+     <form action="" method="POST" class="col-10 mx-auto">
+       <div class="form-group">
+         <label for="compte">Votre compte :</label>
+         <select class="form-control" id="compte" name="compte">
+           <option value="">--Choisissez votre de compte--</option>
+           <?php foreach ($account_type as $key => $accounts): ?>
+             <?php foreach ($accounts as $key => $account): ?>
+               <?php if ($key === "account_type" ): ?>
+                 <option value="<?php echo $account; ?>"> <?php echo $account; ?></option>
+               <?php endif; ?>
+             <?php endforeach; ?>
+           <?php endforeach; ?>
+         </select>
+       </div>
+       <div class="form-group">
+         <label for="mouvement">Retrait/Dépôt :</label>
+         <select class="form-control" id="mouvement" name="mouvement">
+           <option value="">--Retrait/Dépôt--</option>
+           <option value="debit">Débit</option>
+           <option value="credit">Crédit</option>
+         </select>
+       </div>
+       <div class="form-group">
+         <label for="amount">Montant (Minimum 20 euro) :</label>
+         <input type="number" class="form-control" id="amount" name="amount" value="20" min="20" required>
+       </div>
+       <div class="form-group">
+         <label for="label">Example label</label>
+         <input type="text" class="form-control" id="label" placeholder="label..." name="label">
+       </div>
+       <button type="submit" class="btn btn-primary mb-2" name="valider">Valider</button>
+     </form>
+   </div>
+ </div>
 
 <?php
 include "template/footer.php";
