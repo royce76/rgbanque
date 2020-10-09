@@ -13,7 +13,7 @@
     print "Erreur !: " . $e->getMessage() . "<br/>";
     die();
   }
-  
+
   if(isset($_POST["connect"]) && !empty($_POST["connect"])) {
     $email = test_input($_POST["email"]);
     if (filter_var($email,FILTER_VALIDATE_EMAIL)) {
@@ -33,6 +33,9 @@
       }
     }
   }
+  elseif(isset($_POST["connexion"]) && !empty($_POST["connexion"])) {
+    header("Location: profil.php");
+  }
  ?>
 
  <!DOCTYPE html>
@@ -50,7 +53,7 @@
       <section class="container">
         <h3 class="text-center">Connexion</h3>
         <div class="row">
-          <form class="col-10 offset-1" action="" method="POST">
+          <form class="col-10 mx-auto" action="" method="POST">
             <div class="form-group">
               <label for="email">Adresse E-mail :</label>
               <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email">
@@ -60,6 +63,14 @@
               <input type="password" class="form-control" id="password" name="password">
             </div>
             <button type="submit" class="btn btn-primary" name="connect" value="Valider">Valider</button>
+          </form>
+        </div>
+      </section>
+      <section class="container">
+        <h3 class="text-center">Créer votre profil</h3>
+        <div class="row">
+          <form class="col-10 mx-auto" action="" method="POST">
+            <button type="submit" class="btn btn-primary" name="connexion" value="connexion">Nouveau profil</button>
           </form>
         </div>
       </section>
