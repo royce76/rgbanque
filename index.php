@@ -25,7 +25,6 @@
   ]);
 
   $account_user = $query->fetchAll(PDO::FETCH_ASSOC);
-  print_r($account_user);
  ?>
 <h2 class="text-center my-4">Tous vos comptes</h2>
 <div class="container">
