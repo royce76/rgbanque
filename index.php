@@ -7,13 +7,16 @@
   //Our SESSION["user_email"] give us the id from user connected
   //and then we can get accounts from user
   $query = $db->prepare(
-    "SELECT a.id, a.amount AS a_amount, a.opening_date, a.account_type, o.operation_type, o.amount AS o_amount, o.registered, o.label
+    "SELECT DISTINCT a.id AS a_id, a.amount AS a_amount, a.opening_date, a.account_type, o.operation_type, o.amount AS o_amount, o.registered AS o_registered, o.label
     FROM User AS u
     INNER JOIN Account AS a
     ON u.id = a.user_id AND u.id = :user_id
+    -- show account even there is no operation
     LEFT JOIN Operation AS o
     ON a.id = o.account_id
-    ORDER BY o.registered DESC"
+    WHERE o.id IN (SELECT MAX(o.id)
+    FROM Operation as o
+    GROUP BY o.account_id)"
   );
   $result = $query->execute([
     "user_id" => $info_user["id"]
