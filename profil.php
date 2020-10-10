@@ -18,44 +18,48 @@ $result = FALSE;
 $not_the_same_password = "";
 $wrong_email = "";
 $wrong_password = "";
-$error_lastname = $error_firstname = $error_email = $error_city = $error_city_code = $error_adress = $error_sex = $error_password = $error_password_b = $error_birth_date = "";
+$error = "Champs requis";
+$test = 0;
+
 if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
 
   $con = $db->query(
-    "SELECT *
+    "SELECT u.lastname, u.firstname, u.email, u.city, u.city_code, u.adress, u.sex, u.password, u.birth_date
     FROM User AS u"
   );
-  $email_password = $con->fetchAll(PDO::FETCH_ASSOC);
+  $array_user = $con->fetchAll(PDO::FETCH_ASSOC);
 
-  //required test
-  function required($datas) {
-    $error= "";
-    if(empty($_POST[$datas])) {
-      $error = "Champs requis";
-    }
-    return $error;
+  if (test_input($_POST["password"]) !== test_input($_POST["password_b"])) {
+      $not_the_same_password = "saisie non correspondante";
   }
-  $error_lastname = required("lastname");
-  $error_firstname = required("firstname");
-  $error_email = required("email");
-  $error_city = required("city");
-  $error_city_code = required("city_code");
-  $error_adress = required("adress");
-  $error_sex = required("sex");
-  $error_password = required("password");
-  $error_password_b = required("password_b");
-  $error_birth_date = required("birth_date");
 
-  foreach ($email_password as $key => $value) {
-    if ($_POST["email"] === $value["email"]) {
+  foreach ($array_user as $key => $value) {
+    if (test_input($_POST["email"]) === $value["email"]) {
       $wrong_email = "Choisissez un autre email car déja utilisé";
     }
-    if ($_POST["password"] === $value["password"]) {
+    if (password_verify(test_input($_POST["password"]),$value["password"])) {
       $wrong_password = "Choisissez un autre mot de passe car déjà utilisé";
     }
+    // if (!empty($POST[$key])) {
+    //   $test = 1;
+    // }
   }
-
-  if ($_POST["password"] === $_POST["password_b"] && !$wrong_email && !$wrong_password && !required()) {
+  if (
+    test_input($_POST["password"]) === test_input($_POST["password_b"])
+    && !$wrong_email
+    && !$wrong_password
+    // && $test === 1
+    && !empty($_POST["lastname"])
+    && !empty($_POST["firstname"])
+    && !empty($_POST["email"])
+    && !empty($_POST["city"])
+    && !empty($_POST["city_code"])
+    && !empty($_POST["adress"])
+    && !empty($_POST["sex"])
+    && !empty($_POST["password"])
+    && !empty($_POST["password_b"])
+    && !empty($_POST["birth_date"])
+  ) {
     $query = $db->prepare(
       "INSERT INTO User (lastname, firstname, email, city, city_code, adress, sex, password, birth_date)
       VALUES (:lastname, :firstname, :email, :city, :city_code, :adress, :sex, :password, :birth_date)"
@@ -67,13 +71,10 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
       "city" => test_input($_POST["city"]),
       "city_code" => test_input($_POST["city_code"]),
       "adress" => test_input($_POST["adress"]),
-      "sex" => test_input($_POST["sex"]),
+      "sex" => $_POST["sex"],
       "password" => password_hash(test_input($_POST["password"]), PASSWORD_BCRYPT),
       "birth_date" => test_input($_POST["birth_date"])
     ]);
-  }
-  else {
-    $not_the_same_password = "saisie non correspondante";
   }
 }
 
@@ -92,87 +93,114 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
         <form class="col-10 mx-auto" action="" method="POST">
           <div class="form-group">
             <label for="lastname">Nom :</label>
-            <input type="text" class="form-control" id="lastname" name="lastname">
+            <input type="text" class="form-control" id="lastname" name="lastname" value=<?php if(!empty($_POST["lastname"])){ echo $_POST["lastname"];}?>>
             <small>
-              <?php echo $error_lastname ; ?>
+              <?php
+                if (empty($_POST["lastname"]) && isset($_POST["validate"])) {
+                  echo "$error" ;
+                }
+              ?>
             </small>
           </div>
           <div class="form-group">
             <label for="firstname">Prénom :</label>
-            <input type="text" class="form-control" id="firstname" name="firstname">
+            <input type="text" class="form-control" id="firstname" name="firstname" value=<?php if(!empty($_POST["firstname"])){ echo $_POST["firstname"];}?>>
             <small>
-              <?php echo $error_firstname; ?>
+              <?php
+                if (empty($_POST["firstname"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+              ?>
             </small>
           </div>
           <div class="form-group">
             <label for="email">E-mail :</label>
-            <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email">
+            <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email" value=<?php if(!empty($_POST["email"])){ echo $_POST["email"];}?>>
             <small>
               <?php
-                echo "$wrong_email<br>";
-                echo $error_email;
+                if (empty($_POST["email"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+                echo $wrong_email;
               ?>
             </small>
           </div>
           <div class="form-group">
             <label for="city">Ville :</label>
-            <input type="text" class="form-control" id="city" name="city">
+            <input type="text" class="form-control" id="city" name="city" value=<?php if(!empty($_POST["city"])){ echo $_POST["city"];}?>>
             <small>
-              <?php echo $error_city; ?>
+              <?php
+                if (empty($_POST["city"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+              ?>
             </small>
           </div>
           <div class="form-group">
             <label for="city_code">Code Postale :</label>
-            <input type="number" class="form-control" id="city_code" name="city_code">
+            <input type="number" class="form-control" id="city_code" name="city_code" value=<?php if(!empty($_POST["city_code"])){ echo $_POST["city_code"];}?>>
             <small>
-              <?php echo $error_city_code; ?>
+              <?php
+                if (empty($_POST["city_code"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+              ?>
             </small>
           </div>
           <div class="form-group">
             <label for="adress">Adresse :</label>
-            <textarea class="form-control" id="adress" name="adress" rows="3"></textarea>
+            <input type="text" class="form-control" id="adress" name="adress" value=<?php if(!empty($_POST["adress"])){ echo $_POST["adress"];}?>>
             <small>
-              <?php echo $error_adress; ?>
+              <?php
+                if (empty($_POST["adress"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+              ?>
             </small>
           </div>
           <div class="form-group">
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="sex" id="sex" value="h">
+              <input class="form-check-input" type="radio" name="sex" id="sex" value="h" checked>
               <label class="form-check-label" for="sex">Homme</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="sex" id="sex" value="f">
+              <input class="form-check-input" type="radio" name="sex" id="sex" value="f" checked>
               <label class="form-check-label" for="sex">Femme</label>
             </div>
-            <small>
-              <?php echo $error_sex; ?>
-            </small>
           </div>
           <div class="form-group">
             <label for="password">Mot de passe :</label>
-            <input type="text" class="form-control" id="password" name="password">
+            <input type="text" class="form-control" id="password" name="password" value=<?php if(!empty($_POST["password"])){ echo $_POST["password"];}?>>
             <small>
               <?php
-                echo "$wrong_password<br>";
-                echo $error_password;
+                if (empty($_POST["password"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+                echo "$wrong_password";
               ?>
             </small>
           </div>
           <div class="form-group">
             <label for="password_b">Confirmer mot de passe :</label>
-            <input type="text" class="form-control" id="password_b" name="password_b">
+            <input type="text" class="form-control" id="password_b" name="password_b" value=<?php if(!empty($_POST["password_b"])){ echo $_POST["password_b"];}?>>
             <small>
               <?php
-                echo "$not_the_same_password<br>";
-                echo "$error_password_b";
+                if (empty($_POST["password_b"]) && isset($_POST["validate"])) {
+                  echo $error;
+                }
+                echo "$not_the_same_password";
               ?>
             </small>
           </div>
           <div class="form-group">
             <label for="birth_date">Date de naissance :</label>
-            <input type="date" class="form-control" id="birth_date" name="birth_date">
+            <input type="date" class="form-control" id="birth_date" name="birth_date" value=<?php if(!empty($_POST["birth_date"])){ echo $_POST["birth_date"];}?>>
             <small>
-              <?php echo $error_birth_date; ?>
+              <?php
+                if (empty($_POST["birth_date"]) && isset($_POST["validate"])) {
+                  echo "$error";
+                }
+              ?>
             </small>
           </div>
           <button type="submit" class="btn btn-primary" name="validate" value="valider">Valider</button>
