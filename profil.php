@@ -41,7 +41,7 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
   $lastname = preg_match("/^[a-zA-Z-' ]{2,50}$/",$array_user_entry["lastname"]);
   $firstname = preg_match("/^[a-zA-Z-' ]{2,50}$/",$array_user_entry["firstname"]);
   // $email = filter_var($array_user_entry["email"], FILTER_VALIDATE_EMAIL);
-  $email = "";
+  $email = 0;
   $city = preg_match("/^[a-zA-Z-' ]{2,30}$/",$array_user_entry["city"]);
   $city_code = preg_match("/^[0-9]{0,5}$/",$array_user_entry["city_code"]);
   $adress = preg_match("/^[0-9a-zA-Z-' ]{2,50}$/",$array_user_entry["adress"]);
@@ -50,13 +50,13 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
   // $birth_date = preg_match("/^[0-9]{2}\-[0-9]{2}\-[0-9]{4}$/",$array_user_entry["birth_date"]);
 
   function test_email() {
-    global $array_user, $array_user_entry;
+    global $email, $array_user, $array_user_entry;
     foreach ($array_user as $key => $value) {
-      if ($array_user_entry["email"] !== $value["email"]) {
-        $email = $array_user_entry["email"] ;
+      if (in_array($array_user_entry["email"],$value)) {
+        $email = 0 ;
       }
       else {
-        $email;
+        $email = 1;
       }
     }
     return $email;
@@ -68,7 +68,7 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
       echo "ok2<br>";
       $k = test_email();
       echo "$k";
-      if($email === $array_user_entry["email"]) {
+      if($email === 1) {
         echo "ok3<br>";
         if ($city) {
           echo "ok4<br>";
