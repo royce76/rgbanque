@@ -44,13 +44,13 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
   $email = filter_var($array_user_entry["email"], FILTER_VALIDATE_EMAIL);
   $city = preg_match("/^[a-zA-Z-' ]{2,30}$/",$array_user_entry["city"]);
   $city_code = preg_match("/^[0-9]{0,5}$/",$array_user_entry["city_code"]);
-  $adress = preg_match("/^[0-9a-zA-Z-' ]{2,50}$/",$array_user_entry["adress"]);
+  $adress = preg_match("/[0-9a-zA-Z-' ]{2,50}/",$array_user_entry["adress"]);
   $password = preg_match("/.{2,255}/",$array_user_entry["password"]);
   $password_hash = password_hash($array_user_entry["password"], PASSWORD_BCRYPT);
 
   //est ce que l'email est dans la bdd
   function test_email() {
-    global $email, $array_user, $array_user_entry;
+    global $email, $array_user;
     foreach ($array_user as $key => $value) {
       if (in_array($email,$value)) {
         $email = "" ;
@@ -110,7 +110,7 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
       test_email();
       if($email !== "") {
         if ($city) {
-          if ($city) {
+          if ($city_code) {
             if ($adress) {
               if(!empty($array_user_entry["sex"])) {
                 if ($password && $array_user_entry["password"] === test_input($_POST["password_b"])) {
@@ -156,6 +156,9 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
   <body>
     <section class="container">
       <h3 class="text-center">Créer votre profil</h3>
+      <div class="my-4">
+        <a href="index.php" class="btn btn-primary" role="button">Page de connexion</a>
+      </div>
       <div class="row">
         <form class="col-10 mx-auto" action="" method="POST">
           <div class="form-group">
