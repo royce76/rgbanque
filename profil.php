@@ -40,8 +40,8 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
 
   $lastname = preg_match("/^[a-zA-Z-' ]{2,50}$/",$array_user_entry["lastname"]);
   $firstname = preg_match("/^[a-zA-Z-' ]{2,50}$/",$array_user_entry["firstname"]);
-  // $email = filter_var($array_user_entry["email"], FILTER_VALIDATE_EMAIL);
-  $email = 0;
+  $email = filter_var($array_user_entry["email"], FILTER_VALIDATE_EMAIL);
+  // $email = 0;
   $city = preg_match("/^[a-zA-Z-' ]{2,30}$/",$array_user_entry["city"]);
   $city_code = preg_match("/^[0-9]{0,5}$/",$array_user_entry["city_code"]);
   $adress = preg_match("/^[0-9a-zA-Z-' ]{2,50}$/",$array_user_entry["adress"]);
@@ -52,60 +52,57 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
   function test_email() {
     global $email, $array_user, $array_user_entry;
     foreach ($array_user as $key => $value) {
-      if (in_array($array_user_entry["email"],$value)) {
-        $email = 0 ;
+      if (in_array($email,$value)) {
+        $email = "" ;
       }
       else {
-        $email = 1;
+        $email;
       }
     }
     return $email;
   }
 
+  function test_password() {
+    global $password_hash, $array_user, $array_user_entry;
+    foreach ($array_user as $key => $value) {
+      if (password_verify($array_user_entry["password"],$value["password"])) {
+        $password_hash = "";
+      }
+      else {
+        $password_hash;
+      }
+    }
+    return $password_hash;
+  }
+
   if ($lastname) {
-    echo "ok1<br>";
     if ($firstname) {
-      echo "ok2<br>";
-      $k = test_email();
-      echo "$k";
-      if($email === 1) {
-        echo "ok3<br>";
+      test_email();
+      if($email !== "") {
         if ($city) {
-          echo "ok4<br>";
           if ($city) {
-            echo "ok5<br>";
             if ($adress) {
-              echo "ok6<br>";
               if(!empty($array_user_entry["sex"])) {
-                echo "ok7<br>";
-                if ($array_user_entry["password"] === test_input($_POST["password_b"])) {
-                  echo "super";
-                  foreach ($array_user as $key => $value) {
-                    if (!password_verify($array_user_entry["password"],$value["password"])) {
-                      echo "pass";
-                      $password;
+                if ($password && $array_user_entry["password"] === test_input($_POST["password_b"])) {
+                  test_password();
+                  if ($password_hash !== "") {
+                    if (!empty($array_user_entry["birth_date"])) {
+                      $query = $db->prepare(
+                        "INSERT INTO User (lastname, firstname, email, city, city_code, adress, sex, password, birth_date)
+                        VALUES (:lastname, :firstname, :email, :city, :city_code, :adress, :sex, :password, :birth_date)"
+                      );
+                      $result = $query->execute([
+                        "lastname" => $array_user_entry["lastname"],
+                        "firstname" => $array_user_entry["firstname"],
+                        "email" => $array_user_entry["email"],
+                        "city" => $array_user_entry["city"],
+                        "city_code" => $array_user_entry["city_code"],
+                        "adress" => $array_user_entry["adress"],
+                        "sex" => $array_user_entry["sex"],
+                        "password" => $password_hash,
+                        "birth_date" => $array_user_entry["birth_date"]
+                      ]);
                     }
-                  }
-                }
-                if ($password) {
-                  echo "ok8<br>";
-                  if (!empty($array_user_entry["birth_date"])) {
-                    echo "ok9<br>";
-                    $query = $db->prepare(
-                      "INSERT INTO User (lastname, firstname, email, city, city_code, adress, sex, password, birth_date)
-                      VALUES (:lastname, :firstname, :email, :city, :city_code, :adress, :sex, :password, :birth_date)"
-                    );
-                    $result = $query->execute([
-                      "lastname" => $array_user_entry["lastname"],
-                      "firstname" => $array_user_entry["firstname"],
-                      "email" => $array_user_entry["email"],
-                      "city" => $array_user_entry["city"],
-                      "city_code" => $array_user_entry["city_code"],
-                      "adress" => $array_user_entry["adress"],
-                      "sex" => $array_user_entry["sex"],
-                      "password" => $password_hash,
-                      "birth_date" => $array_user_entry["birth_date"]
-                    ]);
                   }
                 }
               }
@@ -115,53 +112,9 @@ if (isset($_POST["validate"]) && !empty($_POST["validate"])) {
       }
     }
   }
-
-  // if (test_input($_POST["password"]) !== test_input($_POST["password_b"])) {
-  //     $not_the_same_password = "saisie non correspondante";
-  // }
-
-  // foreach ($array_user as $key => $value) {
-    // if (test_input($_POST["email"]) === $value["email"]) {
-    //   $wrong_email = "Choisissez un autre email car déja utilisé";
-    // }
-    // if (password_verify(test_input($_POST["password"]),$value["password"])) {
-    //   $wrong_password = "Choisissez un autre mot de passe car déjà utilisé";
-    // }
-  // }
-  // if (
-  //   test_input($_POST["password"]) === test_input($_POST["password_b"])
-  //   && !$wrong_email
-  //   && !$wrong_password
-  //   && !empty($_POST["lastname"])
-  //   && !empty($_POST["firstname"])
-  //   && !empty($_POST["email"])
-  //   && !empty($_POST["city"])
-  //   && !empty($_POST["city_code"])
-  //   && !empty($_POST["adress"])
-  //   && !empty($_POST["sex"])
-  //   && !empty($_POST["password"])
-  //   && !empty($_POST["password_b"])
-  //   && !empty($_POST["birth_date"])
-  // ) {
-    // $query = $db->prepare(
-    //   "INSERT INTO User (lastname, firstname, email, city, city_code, adress, sex, password, birth_date)
-    //   VALUES (:lastname, :firstname, :email, :city, :city_code, :adress, :sex, :password, :birth_date)"
-    // );
-    // $result = $query->execute([
-    //   "lastname" => test_input($_POST["lastname"]),
-    //   "firstname" => test_input($_POST["firstname"]),
-    //   "email" => test_input($_POST["email"]),
-    //   "city" => test_input($_POST["city"]),
-    //   "city_code" => test_input($_POST["city_code"]),
-    //   "adress" => test_input($_POST["adress"]),
-    //   "sex" => $_POST["sex"],
-    //   "password" => password_hash(test_input($_POST["password"]), PASSWORD_BCRYPT),
-    //   "birth_date" => test_input($_POST["birth_date"])
-    // ]);
-  // }
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
   <head>
